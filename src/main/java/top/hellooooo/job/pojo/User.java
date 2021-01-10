@@ -32,6 +32,9 @@ public class User {
     // 用户角色信息
     private Role role;
 
+    // 所属班级
+    private Clazz clazz;
+
     // 账户状态
     private AccountStatus accountStatus;
 }

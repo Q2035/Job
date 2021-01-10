@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
 spring:
   profiles:
     active: dev
@@ -7,3 +7,4 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: classpath:mapper/*Mapper.xml
+  type-aliases-package: top.hellooooo.job.pojo

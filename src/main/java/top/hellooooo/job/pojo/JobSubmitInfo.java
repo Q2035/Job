@@ -14,8 +14,12 @@ public class JobSubmitInfo {
 
     private Integer id;
 
+    // 所提交的作业
+    private JobInfo jobInfo;
+
     // 作业提交时间
     private Date submitTime;
 
-
+    // 作业提交用户
+    private User submitUser;
 }

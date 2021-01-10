@@ -1,0 +1,31 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hellooooo.job.mapper.UserMapper">
+
+    <select id="getClazzByClazzId" resultType="Clazz">
+        select *
+        from j_clazz
+        where id = #{clazz_id};
+    </select>
+
+
+    <resultMap id="userMap" type="User">
+        <association property="clazz" column="clazz_id" select="getClazzByClazzId"/>
+    </resultMap>
+
+    <select id="getUserByUsername" parameterType="string" resultMap="userMap">
+        select *
+        from j_user
+        where username = #{username};
+    </select>
+
+
+    <select id="getUserFromBlackListByUsername" parameterType="string" resultMap="userMap">
+        select *
+        from j_user
+                 join j_blacklist jb on j_user.id = jb.user_id
+        where j_user.username = #{username};
+    </select>
+
+</mapper>

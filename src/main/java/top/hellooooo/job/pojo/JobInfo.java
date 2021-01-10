@@ -21,7 +21,7 @@ public class JobInfo {
     private Date deadline;
 
     // 作业创建时间
-    private Date jobInfoCreateTime;
+    private Date createTime;
 
     // 作业名
     private String jobFilenameInfo;
