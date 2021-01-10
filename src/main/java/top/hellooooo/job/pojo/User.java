@@ -29,6 +29,9 @@ public class User {
     // 邮箱地址
     private String email;
 
+    // 用户角色信息
+    private Role role;
+
     // 账户状态
     private AccountStatus accountStatus;
 }

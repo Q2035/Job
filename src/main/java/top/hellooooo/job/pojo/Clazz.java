@@ -21,4 +21,7 @@ public class Clazz {
 
     // 班级学生
     private List<User> students;
+
+    // 班级管理员们
+    private List<User> admins;
 }

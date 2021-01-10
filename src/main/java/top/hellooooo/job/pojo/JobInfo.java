@@ -23,9 +23,15 @@ public class JobInfo {
     // 作业创建时间
     private Date jobInfoCreateTime;
 
+    // 作业名
+    private String jobFilenameInfo;
+
     // 是否开启邮箱提醒
     private Boolean emailRemind;
 
     // 该作业所分配的班级
     private List<Clazz> clazzes;
+
+    // 该作业发起人
+    private User creator;
 }
