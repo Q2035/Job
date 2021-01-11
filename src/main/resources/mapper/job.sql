@@ -63,3 +63,5 @@ insert into j_user
 values (default, "Q", 1, "Q", "123456", "Q", null);
 insert into j_clazz
     value (default, "1班", 1);
+
+alter table j_user add account_status int;

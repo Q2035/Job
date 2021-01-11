@@ -3,17 +3,20 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="top.hellooooo.job.mapper.UserMapper">
 
-    <select id="getClazzByClazzId" resultType="Clazz">
+    <!--    根据ClassId获取班级-->
+    <select id="getClazzByClazzId" parameterType="int" resultType="Clazz">
         select *
         from j_clazz
         where id = #{clazz_id};
     </select>
 
-
     <resultMap id="userMap" type="User">
+        <result property="accountStatus" column="account_status"
+                typeHandler="top.hellooooo.job.handler.AccountStatusTypeHandler"/>
         <association property="clazz" column="clazz_id" select="getClazzByClazzId"/>
     </resultMap>
 
+    <!--    通过username获取用户-->
     <select id="getUserByUsername" parameterType="string" resultMap="userMap">
         select *
         from j_user
@@ -28,4 +31,59 @@
         where j_user.username = #{username};
     </select>
 
+
+    <update id="updateUser" parameterType="User">
+        update j_user
+        set username       = #{username},
+            real_name      = #{realName},
+            password       = #{password},
+            nickname       = #{nickname},
+            avatar         = #{avatar},
+            account_status = #{accountStatus,typeHandler=top.hellooooo.job.handler.AccountStatusTypeHandler}
+        where id = #{id};
+    </update>
+
+    <!--    需要注意，这里并不包含Clazz，插入用户时还需要插入Clazz-->
+    <insert id="insertUser" parameterType="User">
+        insert into j_user
+        values (default,
+                #{username},
+                #{clazz.id}
+                #{realName},
+                #{password},
+                #{nickname},
+                #{avatar});
+    </insert>
+
+
+    <insert id="batchInsertUser" parameterType="list">
+        insert into j_user values
+        <foreach collection="list" item="user" separator=",">
+            (
+            default,
+            #{user.username},
+            #{user.clazz.id},
+            #{user.realName},
+            #{user.password},
+            #{user.nickname},
+            #{user.avatar},
+            #{user.accountStatus,typeHandler=top.hellooooo.job.handler.AccountStatusTypeHandler}
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertClazz" parameterType="Clazz">
+        insert into j_clazz
+        values (default,
+                #{clazzName},
+                #{studentCount});
+    </insert>
+
+    <update id="updateClazz" parameterType="Clazz">
+        update j_clazz
+        set clazz_name    = #{clazzName},
+            student_count = #{studentCount}
+        where id =
+        #{id}
+    </update>
 </mapper>

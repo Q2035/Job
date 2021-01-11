@@ -13,7 +13,7 @@ public class User {
     private Integer id;
 
     // 学号
-    private String studentId;
+    private String username;
 
     // 真实姓名
     private String realName;

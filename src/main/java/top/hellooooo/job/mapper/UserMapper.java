@@ -1,6 +1,9 @@
 package top.hellooooo.job.mapper;
 
+import top.hellooooo.job.pojo.Clazz;
 import top.hellooooo.job.pojo.User;
+
+import java.util.List;
 
 /**
  * @Author Q
@@ -20,4 +23,12 @@ public interface UserMapper {
      * @param user
      */
     void insertUser(User user);
+
+    void batchInsertUser(List<User> users);
+
+    Clazz getClazzByClazzId(Integer id);
+
+    void updateClazz(Clazz clazz);
+
+    void insertClazz(Clazz clazz);
 }

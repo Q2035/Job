@@ -18,4 +18,8 @@ public enum AccountStatus {
     AccountStatus(Integer status) {
         this.status = status;
     }
+
+    public Integer getStatus() {
+        return status;
+    }
 }
