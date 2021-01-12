@@ -1,10 +1,7 @@
 package top.hellooooo.job.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @Author Q
@@ -14,6 +11,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("/user")
 public class UserController {
+
+    @ResponseBody
+    @GetMapping("hello")
+    public String hello(){
+        return "hello";
+    }
+
+    /**
+     * 登录页面跳转
+     * @return
+     */
     @GetMapping({"/login", "/", "", "/index"})
     public String loginPage() {
         return "login";
@@ -25,7 +33,7 @@ public class UserController {
      * @param password
      * @return
      */
-    @PostMapping("/authentication")
+    @PostMapping("/authenticate")
     public String authentication(@RequestParam("username")String username,
                                  @RequestParam("password")String password){
 

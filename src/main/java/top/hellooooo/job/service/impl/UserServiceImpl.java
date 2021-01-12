@@ -25,23 +25,37 @@ public class UserServiceImpl implements UserService {
         userMapper.insertUser(user);
     }
 
+
+    /**
+     * 批量插入用户
+     * @param users
+     */
     @Override
     public void batchInsertUser(List<User> users) {
-
+        if (users == null) {
+            throw new NullPointerException("BatchInsert: users is null");
+        }
+        userMapper.batchInsertUser(users);
     }
 
     @Override
     public void updateUser(User user) {
-
+        userMapper.updateUser(user);
     }
 
     @Override
     public Clazz getClazzByClazzId(Integer clazzId) {
-        return null;
+        return userMapper.getClazzByClazzId(clazzId);
     }
 
     @Override
-    public User getUserByUsername() {
-        return null;
+    public User getUserByUsername(String username) {
+        return userMapper.getUserByUsername(username);
     }
+
+    @Override
+    public void updateClazz(Clazz clazz) {
+        userMapper.updateClazz(clazz);
+    }
+
 }

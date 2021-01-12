@@ -8,3 +8,8 @@ mybatis:
     map-underscore-to-camel-case: true
   mapper-locations: classpath:mapper/*Mapper.xml
   type-aliases-package: top.hellooooo.job.pojo
+url:
+  ignoring:
+    - /user/login
+    - /user/index
+    - /user/authenticate
