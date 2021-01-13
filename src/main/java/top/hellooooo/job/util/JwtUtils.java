@@ -1,117 +1,121 @@
-package top.hellooooo.job.util;
-
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import top.hellooooo.job.pojo.User;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-/**
- * @Author Q
- * @Date 2021-01-12 08:58
- * @Description
- */
-public class JwtUtils {
-    /**
-     * 用户登录成功后生成Jwt
-     * 使用Hs256算法  私匙使用用户密码
-     *
-     * @param ttlMillis jwt过期时间
-     * @param user      登录成功的user对象
-     * @return
-     */
-    public static String createJWT(long ttlMillis, User user) {
-        //指定签名的时候使用的签名算法，也就是header那部分，jjwt已经将这部分内容封装好了。
-        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
-        //生成JWT的时间
-        long nowMillis = System.currentTimeMillis();
-        Date now = new Date(nowMillis);
-
-        //创建payload的私有声明（根据特定的业务需要添加，如果要拿这个做验证，一般是需要和jwt的接收方提前沟通好验证方式的）
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("id", user.getId());
-        claims.put("username", user.getUsername());
-        claims.put("password", user.getPassword());
-
-        //生成签名的时候使用的秘钥secret,这个方法本地封装了的，一般可以从本地配置文件中读取，切记这个秘钥不能外露哦。它就是你服务端的私钥，在任何场景都不应该流露出去。一旦客户端得知这个secret, 那就意味着客户端是可以自我签发jwt了。
-        String key = user.getPassword();
-
-        //生成签发人
-        String subject = user.getUsername();
-
-
-
-        //下面就是在为payload添加各种标准声明和私有声明了
-        //这里其实就是new一个JwtBuilder，设置jwt的body
-        JwtBuilder builder = Jwts.builder()
-                //如果有私有声明，一定要先设置这个自己创建的私有的声明，这个是给builder的claim赋值，一旦写在标准的声明赋值之后，就是覆盖了那些标准的声明的
-                .setClaims(claims)
-                //设置jti(JWT ID)：是JWT的唯一标识，根据业务需要，这个可以设置为一个不重复的值，主要用来作为一次性token,从而回避重放攻击。
-                .setId(UUID.randomUUID().toString())
-                //iat: jwt的签发时间
-                .setIssuedAt(now)
-                //代表这个JWT的主体，即它的所有人，这个是一个json格式的字符串，可以存放什么userid，roldid之类的，作为什么用户的唯一标志。
-                .setSubject(subject)
-                //设置签名使用的签名算法和签名使用的秘钥
-                .signWith(signatureAlgorithm, key);
-        if (ttlMillis >= 0) {
-            long expMillis = nowMillis + ttlMillis;
-            Date exp = new Date(expMillis);
-            //设置过期时间
-            builder.setExpiration(exp);
-        }
-        return builder.compact();
-    }
-
-
-    /**
-     * Token的解密
-     * @param token 加密后的token
-     * @param user  用户的对象
-     * @return
-     */
-    public static Claims parseJWT(String token, User user) {
-        //签名秘钥，和生成的签名的秘钥一模一样
-        String key = user.getPassword();
-
-        //得到DefaultJwtParser
-        Claims claims = Jwts.parser()
-                //设置签名的秘钥
-                .setSigningKey(key)
-                //设置需要解析的jwt
-                .parseClaimsJws(token).getBody();
-        return claims;
-    }
-
-
-    /**
-     * 校验token
-     * 在这里可以使用官方的校验，我这里校验的是token中携带的密码于数据库一致的话就校验通过
-     * @param token
-     * @param user
-     * @return
-     */
-    public static Boolean isVerify(String token, User user) {
-        //签名秘钥，和生成的签名的秘钥一模一样
-        String key = user.getPassword();
-
-        //得到DefaultJwtParser
-        Claims claims = Jwts.parser()
-                //设置签名的秘钥
-                .setSigningKey(key)
-                //设置需要解析的jwt
-                .parseClaimsJws(token).getBody();
-
-        if (claims.get("password").equals(user.getPassword())) {
-            return true;
-        }
-
-        return false;
-    }
-}
+// package top.hellooooo.job.util;
+//
+// import io.jsonwebtoken.Claims;
+// import io.jsonwebtoken.Jwts;
+// import io.jsonwebtoken.SignatureAlgorithm;
+// import lombok.extern.log4j.Log4j2;
+// import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.util.StringUtils;
+// import top.hellooooo.job.pojo.User;
+//
+// import java.util.Date;
+// import java.util.HashMap;
+// import java.util.Map;
+//
+// /**
+//  * @Author Q
+//  * @Date 2021-01-12 08:58
+//  * @Description
+//  */
+// @Log4j2
+// public class JwtUtils {
+//
+//     private static final String CLAIM_KEY_USERNAME = "sub";
+//
+//     private static final String CLAIM_KEY_CREATED = "created";
+//
+//     // 使用username + "secret"作为密钥
+//
+//     private String SECRET_PREFIX = "_secret";
+//
+//     @Value("${jwt.expiration}")
+//     private Long expiration;
+//
+//     /**
+//      * 根据负责生成JWT的token
+//      */
+//     private String generateToken(Map<String, Object> claims, String username) {
+//         String secret = username + SECRET_PREFIX;
+//         return Jwts.builder()
+//                 .setClaims(claims)
+//                 .setExpiration(generateExpirationDate())
+//                 .signWith(SignatureAlgorithm.HS512, secret)
+//                 .compact();
+//     }
+//
+//     /**
+//      * 从token中获取JWT中的负载
+//      */
+//     private Claims getClaimsFromToken(String token) {
+//         Claims claims = null;
+//         try {
+//             claims = Jwts.parser()
+//                     .setSigningKey(secret)
+//                     .parseClaimsJws(token)
+//                     .getBody();
+//         } catch (Exception e) {
+//             log.info("JWT格式验证失败:{}", token);
+//         }
+//         return claims;
+//     }
+//
+//     /**
+//      * 生成token的过期时间
+//      */
+//     private Date generateExpirationDate() {
+//         return new Date(System.currentTimeMillis() + expiration * 1000);
+//     }
+//
+//     /**
+//      * 从token中获取登录用户名
+//      */
+//     public String getUserNameFromToken(String token) {
+//         String username;
+//         try {
+//             Claims claims = getClaimsFromToken(token);
+//             username = claims.getSubject();
+//         } catch (Exception e) {
+//             username = null;
+//         }
+//         return username;
+//     }
+//
+//     /**
+//      * 验证token是否还有效
+//      *
+//      * @param token       客户端传入的token
+//      * @param user 从数据库中查询出来的用户信息
+//      */
+//     public boolean validateToken(String token, User user) {
+//         String username = getUserNameFromToken(token);
+//         return username.equals(user.getUsername()) && !isTokenExpired(token);
+//     }
+//
+//     /**
+//      * 判断token是否已经失效
+//      */
+//     private boolean isTokenExpired(String token) {
+//         Date expiredDate = getExpiredDateFromToken(token);
+//         return expiredDate.before(new Date());
+//     }
+//
+//     /**
+//      * 从token中获取过期时间
+//      */
+//     private Date getExpiredDateFromToken(String token) {
+//         Claims claims = getClaimsFromToken(token);
+//         return claims.getExpiration();
+//     }
+//
+//     /**
+//      * 根据用户信息生成token
+//      */
+//     public String generateToken(User userDetails) {
+//         Map<String, Object> claims = new HashMap<>();
+//         claims.put(CLAIM_KEY_USERNAME, userDetails.getUsername());
+//         claims.put(CLAIM_KEY_CREATED, new Date());
+//         return generateToken(claims);
+//     }
+//
+//
+// }
