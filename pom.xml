@@ -20,39 +20,39 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-<!--        MySQL驱动-->
+        <!--        MySQL驱动-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
 
-<!--        MyBatis-->
+        <!--        MyBatis-->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>2.1.1</version>
         </dependency>
 
-<!--        thymeleaf-->
+        <!--        thymeleaf-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
-<!--        lombok-->
+        <!--        lombok-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
 
-<!--        Redis-->
+        <!--        Redis-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
 
 
-<!--        SpringBoot Test-->
+        <!--        SpringBoot Test-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -77,6 +77,15 @@
             <version>0.11.1</version>
             <scope>compile</scope> <!-- Not runtime -->
         </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+
     </dependencies>
 
 </project>

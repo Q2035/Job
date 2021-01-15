@@ -3,7 +3,9 @@ package top.hellooooo.job;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
+import top.hellooooo.job.filter.TokenFilter;
 
 /**
  * @Author Q
@@ -12,6 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 
 @SpringBootApplication
+@EnableConfigurationProperties(TokenFilter.class) // 开启ConfigurationProperties注解=
 @MapperScan("top.hellooooo.job.mapper")
 public class JobApplication {
     public static void main(String[] args) {

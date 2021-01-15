@@ -1,7 +1,11 @@
 package top.hellooooo.job.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @Author Q
@@ -20,10 +24,16 @@ public class UserController {
 
     /**
      * 登录页面跳转
+     *
      * @return
      */
     @GetMapping({"/login", "/", "", "/index"})
-    public String loginPage() {
+    public String loginPage(ModelAndView modelAndView,
+                            HttpServletRequest request) {
+        String msg = request.getParameter("msg");
+        if (!StringUtils.isEmpty(msg)) {
+            modelAndView.addObject("msg", msg);
+        }
         return "login";
     }
 
