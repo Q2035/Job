@@ -1,6 +1,7 @@
 package top.hellooooo.job.service;
 
 import top.hellooooo.job.pojo.Clazz;
+import top.hellooooo.job.pojo.SecurityURI;
 import top.hellooooo.job.pojo.User;
 
 import java.util.List;
@@ -24,4 +25,6 @@ public interface UserService {
     User getUserByUsername(String username);
 
     void updateClazz(Clazz clazz);
+
+    List<SecurityURI> getSecurityURI();
 }

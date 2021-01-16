@@ -1,6 +1,8 @@
 package top.hellooooo.job.mapper;
 
 import top.hellooooo.job.pojo.Clazz;
+import top.hellooooo.job.pojo.Role;
+import top.hellooooo.job.pojo.SecurityURI;
 import top.hellooooo.job.pojo.User;
 
 import java.util.List;
@@ -31,4 +33,6 @@ public interface UserMapper {
     void updateClazz(Clazz clazz);
 
     void insertClazz(Clazz clazz);
+
+    List<SecurityURI> getSecurityURI();
 }

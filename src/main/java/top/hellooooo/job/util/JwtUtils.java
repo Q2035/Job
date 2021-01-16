@@ -2,7 +2,9 @@ package top.hellooooo.job.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -25,6 +27,7 @@ public class JwtUtils {
 
     /**
      * 生成JWT，将username放入claim
+     *
      * @return
      */
     public static String generateJWT(Map<String, String> claimsMap) {
@@ -40,12 +43,24 @@ public class JwtUtils {
 
 
     public static Object getClaim(String jwt, String key) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(jwt)
-                .getBody();
-        return claims.get(key);
+        if (StringUtils.isEmpty(jwt)) {
+            return "";
+        }
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(jwt)
+                    .getBody();
+            return claims.get(key);
+        } catch (SignatureException e) {
+            log.info("JWT Parse Error. key:" + key);
+            return "";
+        } catch (ExpiredJwtException e) {
+            log.info("JWT Expired. key:" + key);
+            return "";
+        }
+
     }
 
     public static boolean validateJwt(String jwt) {
@@ -63,7 +78,6 @@ public class JwtUtils {
             //OK, we can trust this JWT
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
             //don't trust the JWT!
             return false;
         }

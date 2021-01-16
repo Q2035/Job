@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.hellooooo.job.mapper.UserMapper;
 import top.hellooooo.job.pojo.Clazz;
+import top.hellooooo.job.pojo.SecurityURI;
 import top.hellooooo.job.pojo.User;
 import top.hellooooo.job.service.UserService;
 
@@ -56,6 +57,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateClazz(Clazz clazz) {
         userMapper.updateClazz(clazz);
+    }
+
+    @Override
+    public List<SecurityURI> getSecurityURI() {
+        return userMapper.getSecurityURI();
     }
 
 }

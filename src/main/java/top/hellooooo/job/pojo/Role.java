@@ -6,14 +6,28 @@ package top.hellooooo.job.pojo;
  * @Description
  */
 public enum Role {
+
     /**
-     * 管理员 学生 班级管理员
+     * 管理员 学生 班级管理员 匿名用户
      */
-    ADMIN("admin"), STUDENT("student"), CLAZZ_ADMIN("clazz_admin");
+    ADMIN(4), CLAZZ_ADMIN(3), STUDENT(2), ANONYMOUS(1);
 
-    String role;
+    Integer role;
 
-    Role(String role) {
+    Role(Integer role) {
         this.role = role;
+    }
+
+    public Integer getRole() {
+        return role;
+    }
+
+    public static Role fromRoleName(Integer roleName) {
+        for (Role role : Role.values()) {
+            if (role.getRole() == roleName) {
+                return role;
+            }
+        }
+        return null;
     }
 }

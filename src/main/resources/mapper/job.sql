@@ -13,7 +13,7 @@ create table j_user(
 create table j_role(
     id int primary key auto_increment,
     user_id int , # 指向j_user表的id字段
-    role varchar(20) # 角色
+    role_name varchar(20) # 角色
 );
 
 create table j_blacklist(
@@ -59,9 +59,23 @@ create table j_clazz_admin(
     user_id int
 );
 
-insert into j_user
-values (default, "Q", 1, "Q", "123456", "Q", null);
+insert into j_user values (default, "Q", 1, "Q", "123456", "Q", null);
 insert into j_clazz
     value (default, "1班", 1);
 
 alter table j_user add account_status int;
+drop table j_role;
+alter table j_user add role_name varchar(20);
+update j_user set role_name = "admin" where username = "Q";
+
+# 路径拦截
+create table j_uri_security(
+  id int primary key auto_increment,
+  uri varchar(255),
+  role_name varchar(100)
+);
+
+alter table j_user drop column role_name;
+alter table j_user add column roles int;
+
+alter table j_uri_security change role_name roles varchar(20);
