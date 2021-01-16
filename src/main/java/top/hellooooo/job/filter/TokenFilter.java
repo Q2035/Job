@@ -56,12 +56,13 @@ public class TokenFilter extends OncePerRequestFilter {
             boolean hasToken = tryGetAndParseToken(request, response, filterChain);
             if (!hasToken) {
                 // response.sendError(HttpServletResponse.SC_FORBIDDEN, "NO Auth");
-                response.sendRedirect("/user/index");
+                response.sendRedirect("/user/index?msg=No Auth");
+                return;
             }
         } catch (AuthenticateException e) {
             // 登录信息无效则返回登录界面
             // response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Re login");
-            response.sendRedirect("/user/index");
+            response.sendRedirect("/user/index?msg=Re login");
             return;
         }
 
@@ -100,6 +101,9 @@ public class TokenFilter extends OncePerRequestFilter {
                 // 存在Token
                 if (cookie.getName().equals(token)) {
                     hasToken = true;
+                    if (StringUtils.isEmpty(cookie.getValue())) {
+                        throw new AuthenticateException("Logout Successfully");
+                    }
                     if (JwtUtils.validateJwt(cookie.getValue())) {
                         filterChain.doFilter(request, response);
                     } else {

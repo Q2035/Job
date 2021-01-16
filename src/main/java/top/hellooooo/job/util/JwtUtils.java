@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author Q
@@ -26,7 +27,7 @@ public class JwtUtils {
      * 生成JWT，将username放入claim
      * @return
      */
-    public static String generateJWT(HashMap<String, String> claimsMap) {
+    public static String generateJWT(Map<String, String> claimsMap) {
         return Jwts.builder()
                 .setClaims(claimsMap)
                 .setIssuedAt(new Date())
@@ -49,13 +50,6 @@ public class JwtUtils {
 
     public static boolean validateJwt(String jwt) {
         try {
-            Date expiration1 = Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
-                    .build()
-                    .parseClaimsJws(jwt)
-                    .getBody()
-                    .getExpiration();
-            System.out.println(expiration1);
             Jws<Claims> claimsJws = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
