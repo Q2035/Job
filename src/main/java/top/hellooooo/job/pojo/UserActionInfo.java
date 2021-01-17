@@ -1,6 +1,9 @@
 package top.hellooooo.job.pojo;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @Author Q
@@ -8,6 +11,9 @@ import lombok.Data;
  * @Description 用户操作日志记录
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class UserActionInfo {
 
     private Integer id;

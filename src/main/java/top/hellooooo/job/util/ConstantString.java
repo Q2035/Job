@@ -8,6 +8,8 @@ package top.hellooooo.job.util;
 public class ConstantString {
     public static final String tokenRole = "role";
     public static final String tokenUsername = "username";
+    public static final String tokenUserId = "userId";
+    public static final String deviceInfo = "User-Agent";
     public static final String tokenName = "Authentication";
     public static final String resultMsg = "msg";
 }

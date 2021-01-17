@@ -1,5 +1,6 @@
 package top.hellooooo.job.controller;
 
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -8,15 +9,21 @@ import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import top.hellooooo.job.mapper.LogMapper;
 import top.hellooooo.job.pojo.Role;
 import top.hellooooo.job.pojo.User;
+import top.hellooooo.job.pojo.UserActionInfo;
+import top.hellooooo.job.service.LogService;
 import top.hellooooo.job.service.UserService;
 import top.hellooooo.job.util.ConstantString;
 import top.hellooooo.job.util.JwtUtils;
+import top.hellooooo.job.util.LogStyle;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,16 +33,22 @@ import java.util.Map;
  * @Description
  */
 @Controller
-// @PropertySource("url.properties")
+@PropertySource("url.properties")
 @RequestMapping("/user")
+@Log4j2
 public class UserController {
 
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private SimpleDateFormat simpleDateFormat;
+
+    @Autowired
+    private LogService logService;
+
     @Value("${url.token}")
     private String urlToken;
-
 
     @ResponseBody
     @GetMapping("hello")
@@ -86,6 +99,7 @@ public class UserController {
         }
         return false;
     }
+
     public Cookie getCookie(String name, HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
@@ -110,16 +124,26 @@ public class UserController {
     @PostMapping("/authenticate")
     public String authentication(@RequestParam("username") String username,
                                  @RequestParam("password") String password,
-                                 HttpServletResponse response) {
+                                 HttpServletResponse response,
+                                 HttpServletRequest request) {
         User user = userService.getUserByUsername(username);
+        Date now = new Date();
         if (user.getPassword().equals(password)) {
             Map<String, String> map = new HashMap<>();
             // 存放一些可能用到的信息
             map.put(ConstantString.tokenUsername, username);
             Role role = user.getRole();
             map.put(ConstantString.tokenRole, String.valueOf(role.getRole()));
+            map.put(ConstantString.tokenUserId, String.valueOf(user.getId()));
             String jwt = JwtUtils.generateJWT(map);
             Cookie cookie = new Cookie(urlToken, jwt);
+            String device = request.getHeader(ConstantString.deviceInfo);
+            // 打印日志
+            String loginState = "Date:{} id:{} realName:{} login from IP:{} Device:{}";
+            log.info(loginState,
+                    simpleDateFormat.format(now), user.getId(), user.getRealName(), request.getRemoteAddr(), device);
+            UserActionInfo userActionInfo = new UserActionInfo(null, user.getId(), user.getUsername(), null);
+            logService.login(userActionInfo, loginState, simpleDateFormat.format(now), String.valueOf(user.getId()), user.getRealName(), request.getRemoteAddr(), device);
             response.addCookie(cookie);
             // 根据用户角色信息返回相应的页面
             return "redirect:" + getUserIndexURI(role);
