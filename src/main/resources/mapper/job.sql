@@ -87,3 +87,12 @@ alter table j_user drop column role_name;
 alter table j_user add column roles int;
 
 alter table j_uri_security change role_name roles varchar(20);
+
+alter table j_user drop column clazz_id;
+
+# 为了满足一个学生可以同时属于多个班级
+create table j_user_clazz(
+  id int primary key auto_increment,
+  user_id int,
+  clazz_id int
+);

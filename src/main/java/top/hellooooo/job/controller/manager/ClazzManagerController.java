@@ -40,9 +40,17 @@ public class ClazzManagerController extends BaseController {
     }
 
     @ResponseBody
+    @PostMapping("/info")
+    public CommonResult<User> info(@RequestParam("clazzId")Integer clazzId){
+        List<User> users = userService.getUsers(clazzId);
+        return CommonResult.ok(users, "Successfully Get");
+    }
+    
+    @ResponseBody
     @PostMapping("/create")
     public CommonResult create(@RequestBody Clazz clazz,
                                HttpServletRequest request) {
+        
         if (clazz == null || StringUtils.isEmpty(clazz.getClazzName())) {
             return CommonResult.fail("Empty clazz name");
         }

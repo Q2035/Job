@@ -14,7 +14,7 @@
         <result property="accountStatus" column="account_status"
                 typeHandler="top.hellooooo.job.handler.AccountStatusTypeHandler"/>
         <result property="role" column="roles" typeHandler="top.hellooooo.job.handler.RoleTypeHandler"/>
-        <association property="clazz" column="clazz_id" select="getClazzByClazzId"/>
+        <!--        <association property="clazz" column="clazz_id" select="getClazzByClazzId"/>-->
     </resultMap>
 
     <!--    通过username获取用户-->
@@ -49,7 +49,7 @@
         insert into j_user
         values (default,
                 #{username},
-                #{clazz.id}
+--                 #{clazz.id},
                 #{realName},
                 #{password},
                 #{nickname},
@@ -63,7 +63,7 @@
             (
             default,
             #{user.username},
-            #{user.clazz.id},
+            -- #{user.clazz.id},
             #{user.realName},
             #{user.password},
             #{user.nickname},
@@ -79,12 +79,13 @@
         </selectKey>
         insert into j_clazz
         values (default,
-                #{clazzName},
-                #{studentCount});
+        #{clazzName},
+        #{studentCount});
     </insert>
 
     <insert id="insertClazzAdminInfo">
-        insert into j_clazz_admin values(default ,#{clazzId},#{userId});
+        insert into j_clazz_admin
+        values (default, #{clazzId}, #{userId});
     </insert>
 
     <update id="updateClazz" parameterType="Clazz">
@@ -105,9 +106,19 @@
     </select>
 
     <select id="getClazzsByAdminId" resultType="Clazz" parameterType="int">
-        select j_clazz.id,j_clazz.clazz_name,j_clazz.student_count
+        select j_clazz.id, j_clazz.clazz_name, j_clazz.student_count
         from j_clazz
                  join j_clazz_admin on j_clazz.id = j_clazz_admin.clazz_id
             and j_clazz_admin.user_id = #{id}
+    </select>
+
+    <select id="getUsersByClazzId" resultMap="userMap">
+        select *
+        from j_user
+        where id in (
+            select user_id
+            from j_user_clazz
+            where clazz_id = #{clazzId}
+        ) limit 500
     </select>
 </mapper>

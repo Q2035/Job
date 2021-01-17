@@ -33,6 +33,8 @@ public interface UserMapper {
 
     List<Clazz> getClazzsByAdminId(Integer id);
 
+    List<User> getUsersByClazzId(Integer clazzId);
+
     void updateClazz(Clazz clazz);
 
     void insertClazzAdminInfo(@Param("clazzId") Integer clazzId, @Param("userId") Integer userId);

@@ -24,6 +24,8 @@ public interface UserService {
 
     User getUserByUsername(String username);
 
+    List<User> getUsers(Integer clazzId);
+
     List<Clazz> getClazzsByAdminId(Integer id);
 
     void updateClazz(Clazz clazz);

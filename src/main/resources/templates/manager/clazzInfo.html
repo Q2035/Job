@@ -7,16 +7,32 @@
 <body>
 <button id="create">create a clazz</button>
 <p>The following is clazz info.</p>
+<p hidden="hidden" th:value="${clazzs.size()}"></p>
 <ul th:each="clazz:${clazzs}">
     <li>
-        <span th:text="${clazz.getClazzName()}"></span>
-        <span th:id=Modify"${clazz.getId()}">Modify</span>
-        <span th:id=Add"${clazz.getId()}">Add students</span>
+        <button th:text="${clazz.getClazzName()}"></button>
+        <span th:text="${clazz.getStudentCount()}"></span>
+        <button th:value="${clazz.getId()}" th:id=|Modify"${clazz.getId()}"| onclick="
+            $.ajax({
+                type: 'post',
+                url: 'http://localhost:8081/manager/clazz/info?clazzId='+ $(this).attr('value'),
+                contentType: 'application/json;charset=UTF-8',
+                success: (res) => {
+                    // 获取后台传入的用户数据
+                    console.log(res.data)
+                }
+            })
+        ">Modify</button>
+        <span>Choose the file to upload</span>
+        <form>
+            <input type="file" name="Add Student">
+        </form>
     </li>
 </ul>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
 <script>
+
     $('#create').click(() => {
         var clazzName = prompt("Input the class name");
         $.ajax({

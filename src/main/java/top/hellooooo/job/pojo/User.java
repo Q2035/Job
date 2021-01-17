@@ -2,6 +2,8 @@ package top.hellooooo.job.pojo;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author Q
  * @Date 09/01/2021 15:51
@@ -33,7 +35,7 @@ public class User {
     private Role role;
 
     // 所属班级
-    private Clazz clazz;
+    private List<Clazz> clazz;
 
     // 账户状态
     private AccountStatus accountStatus;

@@ -55,6 +55,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getUsers(Integer clazzId) {
+        return userMapper.getUsersByClazzId(clazzId);
+    }
+
+    @Override
     public List<Clazz> getClazzsByAdminId(Integer id) {
         return userMapper.getClazzsByAdminId(id);
     }
