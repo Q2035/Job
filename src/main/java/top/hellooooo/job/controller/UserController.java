@@ -8,8 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import top.hellooooo.job.mapper.LogMapper;
+import top.hellooooo.job.pojo.AccountStatus;
 import top.hellooooo.job.pojo.Role;
 import top.hellooooo.job.pojo.User;
 import top.hellooooo.job.pojo.UserActionInfo;
@@ -17,7 +16,6 @@ import top.hellooooo.job.service.LogService;
 import top.hellooooo.job.service.UserService;
 import top.hellooooo.job.util.ConstantString;
 import top.hellooooo.job.util.JwtUtils;
-import top.hellooooo.job.util.LogStyle;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +34,7 @@ import java.util.Map;
 @PropertySource("url.properties")
 @RequestMapping("/user")
 @Log4j2
-public class UserController {
+public class UserController extends BaseController{
 
     @Autowired
     private UserService userService;
@@ -84,32 +82,11 @@ public class UserController {
                          HttpServletResponse response) {
         Cookie cookie = getCookie(urlToken, request);
         if (cookie != null) {
-            cookie.setValue("");
+            cookie.setMaxAge(0);
             response.addCookie(cookie);
         }
         return "/login";
     }
-
-    public boolean validateAuthFromCookie(HttpServletRequest request, String urlToken) {
-        Cookie cookie = getCookie(urlToken, request);
-        if (cookie != null) {
-            if (!StringUtils.isEmpty(cookie.getValue())) {
-                return JwtUtils.validateJwt(cookie.getValue());
-            }
-        }
-        return false;
-    }
-
-    public Cookie getCookie(String name, HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(name)) {
-                return cookie;
-            }
-        }
-        return null;
-    }
-
 
     @GetMapping("/main")
     public String mainPage() {
@@ -128,6 +105,9 @@ public class UserController {
                                  HttpServletRequest request) {
         User user = userService.getUserByUsername(username);
         Date now = new Date();
+        if (user.getAccountStatus() != AccountStatus.ACCOUNT_NORMAL) {
+            return "redirect:/user/index?msg=Account Freeze";
+        }
         if (user.getPassword().equals(password)) {
             Map<String, String> map = new HashMap<>();
             // 存放一些可能用到的信息
@@ -137,6 +117,8 @@ public class UserController {
             map.put(ConstantString.tokenUserId, String.valueOf(user.getId()));
             String jwt = JwtUtils.generateJWT(map);
             Cookie cookie = new Cookie(urlToken, jwt);
+            // 可在同一应用服务器内共享
+            cookie.setPath("/");
             String device = request.getHeader(ConstantString.deviceInfo);
             // 打印日志
             String loginState = "Date:{} id:{} realName:{} login from IP:{} Device:{}";
@@ -146,7 +128,7 @@ public class UserController {
             logService.login(userActionInfo, loginState, simpleDateFormat.format(now), String.valueOf(user.getId()), user.getRealName(), request.getRemoteAddr(), device);
             response.addCookie(cookie);
             // 根据用户角色信息返回相应的页面
-            return "redirect:" + getUserIndexURI(role);
+            return getUserIndexURI(role);
         } else {
             return "redirect:/user/index?msg=Wrong Password";
         }

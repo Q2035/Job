@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ClazzInfo</title>
+</head>
+<body>
+<button id="create">create a clazz</button>
+<p>The following is clazz info.</p>
+<ul th:each="clazz:${clazzs}">
+    <li>
+        <span th:text="${clazz.getClazzName()}"></span>
+        <span th:id=Modify"${clazz.getId()}">Modify</span>
+        <span th:id=Add"${clazz.getId()}">Add students</span>
+    </li>
+</ul>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<script>
+    $('#create').click(() => {
+        var clazzName = prompt("Input the class name");
+        $.ajax({
+            type: "post",
+            data: JSON.stringify(
+                {"clazzName": clazzName}
+            ),
+            contentType: "application/json;charset=UTF-8",
+            url: "http://localhost:8081/manager/clazz/create",
+            success: (result) => {
+                alert(result.msg);
+                location.reload();
+            },
+            error: (result) => {
+                alert("Error");
+            }
+        })
+    })
+</script>
+</html>

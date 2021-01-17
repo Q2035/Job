@@ -21,7 +21,7 @@
     <select id="getUserByUsername" parameterType="string" resultMap="userMap">
         select *
         from j_user
-        where username = #{username};
+        where username = #{username} limit 1;
     </select>
 
 
@@ -73,11 +73,18 @@
         </foreach>
     </insert>
 
-    <insert id="insertClazz" parameterType="Clazz">
+    <insert id="insertClazz" parameterType="Clazz" useGeneratedKeys="true">
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
         insert into j_clazz
         values (default,
                 #{clazzName},
                 #{studentCount});
+    </insert>
+
+    <insert id="insertClazzAdminInfo">
+        insert into j_clazz_admin values(default ,#{clazzId},#{userId});
     </insert>
 
     <update id="updateClazz" parameterType="Clazz">
@@ -85,7 +92,7 @@
         set clazz_name    = #{clazzName},
             student_count = #{studentCount}
         where id =
-        #{id}
+              #{id}
     </update>
 
     <resultMap id="securityURIMap" type="SecurityURI">
@@ -95,5 +102,12 @@
     <select id="getSecurityURI" resultMap="securityURIMap">
         select *
         from j_uri_security;
+    </select>
+
+    <select id="getClazzsByAdminId" resultType="Clazz" parameterType="int">
+        select j_clazz.id,j_clazz.clazz_name,j_clazz.student_count
+        from j_clazz
+                 join j_clazz_admin on j_clazz.id = j_clazz_admin.clazz_id
+            and j_clazz_admin.user_id = #{id}
     </select>
 </mapper>

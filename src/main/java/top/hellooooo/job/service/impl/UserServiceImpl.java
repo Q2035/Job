@@ -55,8 +55,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<Clazz> getClazzsByAdminId(Integer id) {
+        return userMapper.getClazzsByAdminId(id);
+    }
+
+    @Override
     public void updateClazz(Clazz clazz) {
         userMapper.updateClazz(clazz);
+    }
+
+    @Override
+    public void insertClazz(Clazz clazz,Integer userId) {
+        if (clazz.getStudentCount() == null) {
+            clazz.setStudentCount(0);
+        }
+        userMapper.insertClazz(clazz);
+        if (clazz.getId() != null) {
+            userMapper.insertClazzAdminInfo(clazz.getId(), userId);
+            return;
+        }
+        throw new RuntimeException("The Clazz Id is empty from db");
     }
 
     @Override

@@ -11,6 +11,7 @@ import java.util.List;
  */
 @Data
 public class Clazz {
+
     private Integer id;
 
     // 班级名

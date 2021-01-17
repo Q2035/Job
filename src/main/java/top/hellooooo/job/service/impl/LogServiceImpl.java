@@ -20,24 +20,38 @@ public class LogServiceImpl implements LogService {
     @Autowired
     private SimpleDateFormat simpleDateFormat;
 
+    public static final Integer MAX_MESSAGE_LENGTH = 195;
+
     @Autowired
     private LogMapper logMapper;
 
     @Override
     public void info(UserActionInfo userActionInfo, String msg, String... args) {
-        userActionInfo.setMessage("info " + replaceBraces(msg, args).substring(0, 195));
+        String res = replaceBraces(msg, args);
+        if (res.length() > MAX_MESSAGE_LENGTH) {
+            res = res.substring(0, MAX_MESSAGE_LENGTH);
+        }
+        userActionInfo.setMessage("info " + res);
         logMapper.info(userActionInfo);
     }
 
     @Override
     public void login(UserActionInfo userActionInfo, String msg, String... args) {
-        userActionInfo.setMessage("login " + replaceBraces(msg, args).substring(0, 195));
+        String res = replaceBraces(msg, args);
+        if (res.length() > MAX_MESSAGE_LENGTH) {
+            res = res.substring(0, MAX_MESSAGE_LENGTH);
+        }
+        userActionInfo.setMessage("login " + res);
         logMapper.info(userActionInfo);
     }
 
     @Override
     public void logout(UserActionInfo userActionInfo, String msg, String... args) {
-        userActionInfo.setMessage("logout " + replaceBraces(msg, args).substring(0, 195));
+        String res = replaceBraces(msg, args);
+        if (res.length() > MAX_MESSAGE_LENGTH) {
+            res = res.substring(0, MAX_MESSAGE_LENGTH);
+        }
+        userActionInfo.setMessage("logout " + res);
         logMapper.info(userActionInfo);
     }
 

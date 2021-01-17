@@ -74,6 +74,14 @@ create table j_uri_security(
   uri varchar(255),
   role_name varchar(100)
 );
+# 2 学生 3 班级管理员 4 管理员
+insert into j_uri_security values(default,"/user/main",2);
+insert into j_uri_security values(default,"/manager/main",3);
+insert into j_uri_security values(default,"/admin/main",4);
+
+insert into j_uri_security values(default,"/manager/clazz",3);
+insert into j_uri_security values(default,"/manager/clazz/index",3);
+insert into j_uri_security values(default,"/manager/clazz/create",3);
 
 alter table j_user drop column role_name;
 alter table j_user add column roles int;

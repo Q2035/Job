@@ -24,7 +24,11 @@ public interface UserService {
 
     User getUserByUsername(String username);
 
+    List<Clazz> getClazzsByAdminId(Integer id);
+
     void updateClazz(Clazz clazz);
+
+    void insertClazz(Clazz clazz,Integer userId);
 
     List<SecurityURI> getSecurityURI();
 }

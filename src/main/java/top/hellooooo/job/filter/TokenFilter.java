@@ -1,7 +1,6 @@
 package top.hellooooo.job.filter;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -70,9 +69,8 @@ public class TokenFilter extends OncePerRequestFilter {
             }
         }
         try {
-            boolean hasToken = tryGetAndParseToken(request, response, filterChain);
-            if (!hasToken) {
-                // response.sendError(HttpServletResponse.SC_FORBIDDEN, "NO Auth");
+            String jwt = tryGetAndParseToken(request, filterChain);
+            if (StringUtils.isEmpty(jwt)) {
                 response.sendRedirect("/user/index?msg=No Auth");
                 return;
             }
@@ -89,7 +87,6 @@ public class TokenFilter extends OncePerRequestFilter {
                                     // 角色等级高于当前角色才有访问权限
                                     try {
                                         if ((Integer.valueOf((String) claim)) >= role) {
-                                            // 这里不删除，会造成同一页面反复渲染多次
                                             filterChain.doFilter(request, response);
                                         } else {
                                             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Do not have permission!");
@@ -105,23 +102,23 @@ public class TokenFilter extends OncePerRequestFilter {
                     }
                 }
             }
+            response.sendError(HttpServletResponse.SC_FORBIDDEN,"Forbidden");
+            return;
         } catch (AuthenticateException e) {
             // 登录信息无效则返回登录界面
-            // response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Re login");
             response.sendRedirect("/user/index?msg=Re login");
             return;
         }
     }
 
-    private boolean tryGetAndParseToken(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException, AuthenticateException {
-        boolean hasToken = false;
-
+    private String tryGetAndParseToken(HttpServletRequest request, FilterChain filterChain) throws IOException, ServletException, AuthenticateException {
+        String jwt = "";
         // 从Header中获取
         String header = request.getHeader(token);
         if (!StringUtils.isEmpty(header)) {
-            hasToken = true;
+            jwt = header;
             if (JwtUtils.validateJwt(header)) {
-                filterChain.doFilter(request, response);
+                return jwt;
             } else {
                 throw new AuthenticateException("Credentials expire, please try to login in again.");
             }
@@ -130,10 +127,10 @@ public class TokenFilter extends OncePerRequestFilter {
         // 从请求路径获取Token信息
         String authToken = request.getParameter(token);
         if (!StringUtils.isEmpty(authToken)) {
-            hasToken = true;
+            jwt = authToken;
             // 校验通过
             if (JwtUtils.validateJwt(authToken)) {
-                // filterChain.doFilter(request, response);
+                return jwt;
             } else {
                 throw new AuthenticateException("Credentials expire, please try to login in again.");
             }
@@ -145,19 +142,20 @@ public class TokenFilter extends OncePerRequestFilter {
             for (Cookie cookie : cookies) {
                 // 存在Token
                 if (cookie.getName().equals(token)) {
-                    hasToken = true;
                     if (StringUtils.isEmpty(cookie.getValue())) {
                         throw new AuthenticateException("Logout Successfully");
                     }
                     if (JwtUtils.validateJwt(cookie.getValue())) {
+                        jwt = cookie.getValue();
                         // filterChain.doFilter(request, response);
+                        return jwt;
                     } else {
                         throw new AuthenticateException("Credentials expire, please try to login in again.");
                     }
                 }
             }
         }
-        return hasToken;
+        return jwt;
     }
 
     private boolean tryValidate(HttpServletResponse response, String authStr) throws IOException {
