@@ -5,7 +5,7 @@
 
     <insert id="insertFileDTO" parameterType="FileDTO">
         insert into j_file
-        values (default, #{path}, #{name},
+        values (default, #{userId},#{path}, #{name},
                 #{suffix}, #{size}, #{createdAt}, #{updatedAt},
                 #{shardIndex}, #{shardSize}, #{shardTotal},
                 #{fileKey});

@@ -13,5 +13,7 @@ public interface LogService {
 
     void login(UserActionInfo userActionInfo, String msg, String... args);
 
+    void upload(UserActionInfo userActionInfo, String msg, String... args);
+
     void logout(UserActionInfo userActionInfo, String msg, String... args);
 }

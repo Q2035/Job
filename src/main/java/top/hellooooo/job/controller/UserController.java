@@ -115,6 +115,7 @@ public class UserController extends BaseController{
             Role role = user.getRole();
             map.put(ConstantString.tokenRole, String.valueOf(role.getRole()));
             map.put(ConstantString.tokenUserId, String.valueOf(user.getId()));
+            map.put(ConstantString.tokenUserRealName, user.getRealName());
             String jwt = JwtUtils.generateJWT(map);
             Cookie cookie = new Cookie(urlToken, jwt);
             // 可在同一应用服务器内共享

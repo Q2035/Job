@@ -12,4 +12,5 @@ public class ConstantString {
     public static final String deviceInfo = "User-Agent";
     public static final String tokenName = "Authentication";
     public static final String resultMsg = "msg";
+    public static final String tokenUserRealName = "realName";
 }

@@ -98,8 +98,9 @@ create table j_user_clazz(
 );
 
 # 文件上传数据库表
-CREATE TABLE `file`  (
+CREATE TABLE `j_file`  (
      `id` int(0) NOT NULL AUTO_INCREMENT COMMENT 'id',
+     `user_id` int comment '上传用户',
      `path` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL COMMENT '相对路径',
      `name` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '文件名',
      `suffix` varchar(10) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '后缀',
@@ -112,4 +113,3 @@ CREATE TABLE `file`  (
      `file_key` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '文件标识',
      PRIMARY KEY (`id`) USING BTREE
 );
-alter table file rename j_file;

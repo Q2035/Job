@@ -11,6 +11,11 @@ public class FileDTO {
     private Integer id;
 
     /**
+     * 上传者
+     */
+    private Integer userId;
+
+    /**
     * 相对路径
     */
     private String path;

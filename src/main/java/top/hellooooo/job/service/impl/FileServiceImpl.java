@@ -26,7 +26,7 @@ public class FileServiceImpl implements FileService {
      */
     @Override
     public void save(FileDTO fileDTO) {
-        //根据 数据库的 文件标识来查询 当前视频 是否存在
+        //根据 数据库的 文件标识来查询 文件 是否存在
         List<FileDTO> fileDTOS = fileMapper.getFileDTO(fileDTO.getFileKey());
         //如果存在就话就修改
         if (fileDTOS.size() != 0) {
