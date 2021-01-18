@@ -15,7 +15,7 @@
         <button th:value="${clazz.getId()}" th:id=|Modify"${clazz.getId()}"| onclick="
             $.ajax({
                 type: 'post',
-                url: 'http://localhost:8081/manager/clazz/info?clazzId='+ $(this).attr('value'),
+                url: '/manager/clazz/info?clazzId='+ $(this).attr('value'),
                 contentType: 'application/json;charset=UTF-8',
                 success: (res) => {
                     // 获取后台传入的用户数据
@@ -41,7 +41,7 @@
                 {"clazzName": clazzName}
             ),
             contentType: "application/json;charset=UTF-8",
-            url: "http://localhost:8081/manager/clazz/create",
+            url: "/manager/clazz/create",
             success: (result) => {
                 alert(result.msg);
                 location.reload();
