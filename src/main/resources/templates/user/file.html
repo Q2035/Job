@@ -24,6 +24,9 @@
 <script type="text/javascript" src="https://cdn.hellooooo.top/static/js/md5.js"></script>
 <script type="text/javascript" src="https://cdn.hellooooo.top/static/js//tool.js"></script>
 <script type="text/javascript">
+    //文件分片,以20MB去分片大小
+    let shardSize = 20 * 1024 * 1024;
+
     //上传文件的话  得 单独出来
     function tryUploadShardFile(shardIndex) {
         console.log("prepare to submit shardIndex:" + shardIndex);
@@ -31,10 +34,15 @@
         var fd = new FormData();
         //获取表单中的file
         var file = $('#inputfile').get(0).files[0];
-        //文件分片,以20MB去分片大小
-        var shardSize = 20 * 1024 * 1024;
+        //文件的大小
+        var size = file.size;
+        //总片数
+        var shardTotal = Math.ceil(size / shardSize);
         //定义分片索引
         var shardIndex = shardIndex;
+        if (shardIndex > shardTotal) {
+            shardIndex = 0;
+        }
         //定义分片的起始位置
         var start = (shardIndex - 1) * shardSize;
         //定义分片结束的位置
@@ -42,10 +50,6 @@
         var end = Math.min(file.size, start + shardSize);
         //从文件中截取当前的分片数据
         var fileShard = file.slice(start, end);
-        //分片的大小
-        var size = file.size;
-        //总片数
-        var shardTotal = Math.ceil(size / shardSize);
         //文件的后缀名
         var fileName = file.name;
         var suffix = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length).toLowerCase();
@@ -77,7 +81,7 @@
                     var index = shardIndex + 1;
                     tryUploadShardFile(index);
                 } else {
-                    alert(data)
+                    alert(data.msg);
                 }
 
             },
@@ -92,9 +96,12 @@
     //判断这个加密文件存在与否
     function check() {
         var file = $('#inputfile').get(0).files[0];
+        var fileName = file.name;
+        var suffix = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length).toLowerCase();
+        var fileSize = file.size;
+        var shardTotal = Math.ceil(fileSize / shardSize);
         //把文件的信息存储为一个字符串
         var filedetails = file.name + file.size + file.type + file.lastModifiedDate;
-        //使用当前文件的信息用md5加密生成一个key 这个加密是根据文件的信息来加密的  如果相同的文件 加的密还是一样的
         var key = hex_md5(filedetails);
         var key10 = parseInt(key, 16);
         //把加密的信息 转为一个64位的
@@ -103,19 +110,20 @@
         $.ajax({
             url: "/file/check",
             type: "post",
-            data: {'key': key62},
+            data: {
+                'suffix': suffix,
+                'shardTotal': shardTotal,
+                'key': key62,
+                'size': fileSize,
+                'shardSize': shardSize
+            },
             success: function (data) {
                 console.log(data);
-                if (!data.success) {
-                    //这个方法必须抽离出来
-                    tryUploadShardFile(1);
+                if (data.success) {
+                    alert("Fast Upload Successfully")
                 } else {
-                    if (data.data.shardIndex == data.data.shardTotal) {
-                        alert("极速上传成功");
-                    } else {
-                        //找到这个是第几片 去重新上传
-                        tryUploadShardFile(parseInt(data.data.shardIndex));
-                    }
+                    // 根据返回的片数进行上传
+                    tryUploadShardFile(parseInt(data.data));
                 }
             }
         })

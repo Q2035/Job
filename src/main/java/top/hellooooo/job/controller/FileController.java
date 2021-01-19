@@ -72,14 +72,14 @@ public class FileController extends BaseController {
      */
     @PostMapping("/upload")
     @ResponseBody
-    public String upload(MultipartFile file,
-                         String suffix,
-                         Long shardIndex,
-                         Long shardSize,
-                         Long shardTotal,
-                         Long size,
-                         String key,
-                         HttpServletRequest request
+    public CommonResult upload(MultipartFile file,
+                               String suffix,
+                               Long shardIndex,
+                               Long shardSize,
+                               Long shardTotal,
+                               Long size,
+                               String key,
+                               HttpServletRequest request
     ) throws IOException, InterruptedException {
         Integer userId = 0;
         // 只有第一次传输文件时才会打印日志
@@ -94,49 +94,12 @@ public class FileController extends BaseController {
                 } catch (Exception e) {
                     log.warn("Error getting name from jwt.");
                 }
+                log.info("User ID:{} Begin to upload file {}", userId, key);
             }
-            log.info("User ID:{} Begin to upload file {}", userId, key);
-        }
-        File baseFileParent = new File(basePath);
-        
-        File[] listFiles = baseFileParent.listFiles();
-        Long maxShardFile = 0L;
-        if (listFiles != null) {
-            for (File listFile : listFiles) {
-                // 如果以文件key开头，则说明是未传输完成的分片文件
-                if (listFile.getName().startsWith(key)) {
-                    String name = listFile.getName();
-                    int lastIndexOf = name.lastIndexOf('.');
-                    if (lastIndexOf < name.length()) {
-                        name = name.substring(lastIndexOf + 1);
-                        Integer parseNumber = 0;
-                        try {
-                            parseNumber = NumberUtils.parseNumber(name, Integer.class);
-                        } catch (NumberFormatException e) {
-                            // 只要解析出来不是数字并且文件大小一致则说明文件已经上传成功并成功Merge
-                            long length = listFile.length();
-                            if (listFile.length() == size) {
-                                log.info("Fast upload successfully {}", key);
-                                return "Fast Upload Successfully";
-                            }
-                            // 不是则说明有问题，应该删除
-                            listFile.delete();
-                        }
-                        // 如果已存在的分片文件大小恰好为1片
-                        if (parseNumber > maxShardFile && shardSize == listFile.getTotalSpace()) {
-                            maxShardFile = (long)parseNumber;
-                        }
-                    }
-                }
-            }
-        }
-        // 如果文件查询到的最大分片数不等于当前分片数，则说明可以继续上传
-        if (maxShardFile.longValue() < shardIndex && maxShardFile.longValue() != 0) {
-            List<FileDTO> check = fileService.check(key);
-            FileDTO fileDTO = check.get(0);
-            if (fileDTO.getShardIndex() == maxShardFile.longValue()) {
-                return "Incomplete file detected, waiting...";
-            }
+        } else {
+            // 不管是不是第一次提交，都需要用户ID
+            Cookie cookie = getCookie(ConstantString.tokenName, request);
+            userId = Integer.valueOf((String) JwtUtils.getClaim(cookie.getValue(), ConstantString.tokenUserId));
         }
         // 获取文件的扩展名
         // 设置新的名字
@@ -154,38 +117,103 @@ public class FileController extends BaseController {
         // 上传这个文件
         file.transferTo(targetFile);
         //数据库持久化这个数据
-        FileDTO fileDTO = new FileDTO();
-        fileDTO.setUserId(userId);
-        fileDTO.setPath(basePath + localfilename);
-        fileDTO.setSuffix(suffix);
-        // 文件名
-        fileDTO.setName(localfilename);
-        fileDTO.setSize(size);
-        fileDTO.setCreatedAt(System.currentTimeMillis());
-        fileDTO.setUpdatedAt(System.currentTimeMillis());
-        fileDTO.setShardIndex(shardIndex);
-        fileDTO.setShardSize(shardSize);
-        fileDTO.setShardTotal(shardTotal);
-        fileDTO.setFileKey(key);
+        FileDTO fileDTO = new FileDTO(null, userId, basePath + localfilename, localfilename, suffix, size, System.currentTimeMillis(), System.currentTimeMillis(), shardIndex, shardSize, shardTotal, key);
         // 插入到数据库中
         fileService.save(fileDTO);
         // 判断当前是不是最后一个分页 如果不是就继续等待其他分页 合并分页
         if (shardIndex.equals(shardTotal)) {
             fileDTO.setPath(basePath + fileName);
             this.merge(fileDTO);
+            return CommonResult.ok("Upload Successfully");
         }
-        return "Upload Successfully";
+        return CommonResult.ok(shardIndex + " Upload Successfully");
+    }
+
+    /**
+     * @param listFiles
+     * @param key
+     * @param shardSize
+     * @param size
+     * @return -1 代表存在上传完的文件 0 代表全部需要重新传输 其他数字代表下一个需要传输的分片shardIndex
+     */
+    private Integer getExistedMaxShardFile(File[] listFiles, String key, Long shardSize, Long size) {
+        Integer maxShardFile = 1;
+        if (listFiles != null) {
+            for (File listFile : listFiles) {
+                // 如果以文件key开头，则说明是未传输完成的分片文件
+                if (listFile.getName().startsWith(key)) {
+                    String name = listFile.getName();
+                    int lastIndexOf = name.lastIndexOf('.');
+                    if (lastIndexOf < name.length()) {
+                        name = name.substring(lastIndexOf + 1);
+                        Integer parseNumber = 0;
+                        try {
+                            parseNumber = NumberUtils.parseNumber(name, Integer.class) + 1;
+                            // 如果解析出来的数字没问题，那么比较分片大小与文件大小查看文件是否为合法分片
+                            if (listFile.length() == shardSize) {
+                                if (maxShardFile < parseNumber) {
+                                    maxShardFile = parseNumber;
+                                }
+                            } else {
+                                listFile.delete();
+                            }
+                        } catch (NumberFormatException e) {
+                            // 只要解析出来不是数字并且文件大小一致则说明文件已经上传成功并成功Merge
+                            if (listFile.length() == size) {
+                                log.info("Fast upload successfully {}", key);
+                                return -1;
+                            }
+                            // 不是则说明有问题，应该删除
+                            listFile.delete();
+                        }
+                    }
+                }
+            }
+        }
+        return maxShardFile;
     }
 
     @RequestMapping("/check")
     @ResponseBody
-    public CommonResult check(String key) {
-        List<FileDTO> check = fileService.check(key);
-        //如果这个key存在的话 那么就获取上一个分片去继续上传
-        if (check.size() != 0) {
-            return CommonResult.ok(check.get(0), "查询成功");
+    public CommonResult check(String suffix,
+                              Long shardSize,
+                              Long shardTotal,
+                              Long size,
+                              String key,
+                              HttpServletRequest request) {
+        File baseFileParent = new File(basePath);
+        Integer maxShardFile;
+        maxShardFile = getExistedMaxShardFile(baseFileParent.listFiles(), key, shardSize, size);
+        // 与数据库中的数据进行比对
+        if (maxShardFile > 1) {
+            List<FileDTO> check = fileService.check(key);
+            FileDTO fileDTO = check.get(0);
+            if (fileDTO.getShardIndex().intValue() + 1 == maxShardFile) {
+                return CommonResult.fail(maxShardFile, "Incomplete file detected, waiting...");
+            }
+            return CommonResult.fail(1, "Something error, need to re-upload");
         }
-        return CommonResult.fail("查询失败,可以添加");
+        switch (maxShardFile) {
+            case -1:
+                Cookie cookie = getCookie(ConstantString.tokenName, request);
+                Integer userId = Integer.valueOf((String) JwtUtils.getClaim(cookie.getValue(), ConstantString.tokenUserId));
+                String username = (String) JwtUtils.getClaim(cookie.getValue(), ConstantString.tokenUsername);
+                UserActionInfo userActionInfo = new UserActionInfo(null, userId, username, null);
+                logService.upload(userActionInfo, "Date:{} username:{} upload file {}", simpleDateFormat.format(new Date()), username, key);
+
+                FileDTO fileDTO = new FileDTO(null, userId, basePath + key + suffix, key, suffix, size, System.currentTimeMillis(), System.currentTimeMillis(), shardTotal, shardSize, shardTotal, key);
+                // 插入到数据库中
+                fileService.save(fileDTO);
+
+                return CommonResult.ok("Fast upload successfully");
+            case 0:
+                break;
+            default:
+                // 下一个需要传输的分片为maxShardFile
+                return CommonResult.fail(maxShardFile, "Prepare to continue upload...");
+        }
+        //如果这个key存在的话 那么就获取上一个分片去继续上传
+        return CommonResult.fail(maxShardFile, "Prepare to upload..");
     }
 
 

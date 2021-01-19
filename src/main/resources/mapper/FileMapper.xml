@@ -22,9 +22,8 @@
             updated_at  = #{updatedAt},
             shard_index = #{shardIndex},
             shard_size  = #{shardSize},
-            shard_total = #{shardTotal},
-            file_key    = #{fileKey}
-        where id = #{id}
+            shard_total = #{shardTotal}
+        where user_id = #{userId} and file_key = #{fileKey}
     </update>
 
     <select id="getFileDTO" resultType="FileDTO">
