@@ -27,7 +27,9 @@ public interface UserMapper {
      */
     void insertUser(User user);
 
-    void batchInsertUser(List<User> users);
+    void insertUserClazz(Integer userId, Integer clazzId);
+
+    void batchInsertUser(@Param("list") List<User> users);
 
     Clazz getClazzByClazzId(Integer id);
 

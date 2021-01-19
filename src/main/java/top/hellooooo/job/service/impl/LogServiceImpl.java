@@ -37,6 +37,12 @@ public class LogServiceImpl extends BaseLog implements LogService {
     }
 
     @Override
+    public void importUser(UserActionInfo userActionInfo, String msg, String... args) {
+        userActionInfo.setMessage(log("user import", msg, args));
+        logMapper.info(userActionInfo);
+    }
+
+    @Override
     public void logout(UserActionInfo userActionInfo, String msg, String... args) {
         userActionInfo.setMessage(log("logout", msg, args));
         logMapper.info(userActionInfo);

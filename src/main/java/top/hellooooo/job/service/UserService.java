@@ -16,7 +16,7 @@ public interface UserService {
     // 插入用户
     void insertUser(User user);
 
-    void batchInsertUser(List<User> users);
+    void batchInsertUserWithClazzId(List<User> users, Integer clazzId);
 
     void updateUser(User user);
 

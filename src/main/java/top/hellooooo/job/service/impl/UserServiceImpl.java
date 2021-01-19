@@ -28,15 +28,23 @@ public class UserServiceImpl implements UserService {
 
 
     /**
-     * 批量插入用户
+     * 批量插入用户到指定班级
+     *
      * @param users
      */
     @Override
-    public void batchInsertUser(List<User> users) {
+    public void batchInsertUserWithClazzId(List<User> users, Integer clazzId) {
         if (users == null) {
             throw new NullPointerException("BatchInsert: users is null");
         }
+        // 先插入j_user用户表
         userMapper.batchInsertUser(users);
+        // 再插入j_user_clazz表
+        if (!users.isEmpty()) {
+            users.forEach(user->{
+                userMapper.insertUserClazz(user.getId(), clazzId);
+            });
+        }
     }
 
     @Override

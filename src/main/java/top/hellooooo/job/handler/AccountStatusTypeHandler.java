@@ -25,7 +25,7 @@ public class AccountStatusTypeHandler<E extends AccountStatus> extends BaseTypeH
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, AccountStatus parameter, JdbcType jdbcType) throws SQLException {
         if (parameter == null) {
-            return;
+            ps.setInt(i, AccountStatus.ACCOUNT_NORMAL.getStatus());
         }
         ps.setInt(i, parameter.getStatus());
     }

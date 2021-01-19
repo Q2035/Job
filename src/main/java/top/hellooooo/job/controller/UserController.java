@@ -31,7 +31,7 @@ import java.util.Map;
  * @Description
  */
 @Controller
-@PropertySource("url.properties")
+// @PropertySource("url.properties")
 @RequestMapping("/user")
 @Log4j2
 public class UserController extends BaseController{

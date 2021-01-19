@@ -18,7 +18,7 @@ public class RoleTypeHandler<E extends Role> extends BaseTypeHandler<Role> {
     @Override
     public void setNonNullParameter(PreparedStatement ps, int i, Role parameter, JdbcType jdbcType) throws SQLException {
         if (parameter != null) {
-            return;
+            ps.setInt(i, Role.STUDENT.getRole());
         }
         ps.setInt(i, parameter.getRole());
     }

@@ -9,11 +9,14 @@ import top.hellooooo.job.pojo.UserActionInfo;
  * @Description
  */
 public interface LogService {
+
     void info(UserActionInfo userActionInfo, String msg, String... args);
 
     void login(UserActionInfo userActionInfo, String msg, String... args);
 
     void upload(UserActionInfo userActionInfo, String msg, String... args);
+
+    void importUser(UserActionInfo userActionInfo, String msg, String... args);
 
     void logout(UserActionInfo userActionInfo, String msg, String... args);
 }

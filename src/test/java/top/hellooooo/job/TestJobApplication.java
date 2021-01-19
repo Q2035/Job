@@ -9,11 +9,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import top.hellooooo.job.mapper.UserMapper;
 import top.hellooooo.job.pojo.Clazz;
 import top.hellooooo.job.pojo.User;
+import top.hellooooo.job.service.UserService;
 import top.hellooooo.job.util.EncodingUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @Author Q
@@ -26,6 +29,9 @@ public class TestJobApplication {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private UserService userService;
 
 
     @Test
@@ -47,5 +53,22 @@ public class TestJobApplication {
         //
         // clazz.setClazzName("CS18");
         // userMapper.updateClazz(clazz);
+    }
+
+    @Test
+    public void testBatchInsertUser(){
+        List<User> userList = new ArrayList<>();
+        User user = new User();
+        user.setUsername("QQ");
+        user.setRealName("Li");
+        user.setNickname("QQ");
+        User user2 = new User();
+        user2.setUsername("QQ");
+        user2.setRealName("Li");
+        user2.setNickname("QQ");
+        userList.add(user);
+        userList.add(user2);
+
+        userService.batchInsertUserWithClazzId(userList, 1);
     }
 }

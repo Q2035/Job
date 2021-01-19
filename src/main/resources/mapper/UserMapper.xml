@@ -57,18 +57,19 @@
     </insert>
 
 
-    <insert id="batchInsertUser" parameterType="list">
+<!--    自动在插入数据库后将生成的逐渐设回参数-->
+    <insert id="batchInsertUser" parameterType="list" useGeneratedKeys="true" keyProperty="list.id">
         insert into j_user values
         <foreach collection="list" item="user" separator=",">
             (
             default,
             #{user.username},
-            -- #{user.clazz.id},
             #{user.realName},
             #{user.password},
             #{user.nickname},
             #{user.avatar},
-            #{user.accountStatus,typeHandler=top.hellooooo.job.handler.AccountStatusTypeHandler}
+            #{user.accountStatus,typeHandler=top.hellooooo.job.handler.AccountStatusTypeHandler},
+            #{user.role,typeHandler=top.hellooooo.job.handler.RoleTypeHandler}
             )
         </foreach>
     </insert>
@@ -86,6 +87,11 @@
     <insert id="insertClazzAdminInfo">
         insert into j_clazz_admin
         values (default, #{clazzId}, #{userId});
+    </insert>
+
+    <insert id="insertUserClazz">
+        insert into j_user_clazz
+        values (default, #{userId}, #{clazzId});
     </insert>
 
     <update id="updateClazz" parameterType="Clazz">
