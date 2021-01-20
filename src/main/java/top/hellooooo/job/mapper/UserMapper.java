@@ -17,6 +17,8 @@ public interface UserMapper {
 
     User getUserByUsername(String username);
 
+    User getUserByUserId(Integer id);
+
     void updateUser(User user);
 
     User getUserFromBlackListByUsername(String username);

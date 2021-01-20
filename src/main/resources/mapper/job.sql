@@ -40,6 +40,7 @@ create table j_submit_info(
 create table j_job_info(
     id int primary key auto_increment,
     job_name varchar(50), # 作业名字
+    separators varchar(10),
     deadline datetime,
     create_time datetime,
     job_filename_info varchar(200), # 作业提交后最后重命名的方式

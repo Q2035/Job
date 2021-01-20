@@ -33,4 +33,6 @@ public interface UserService {
     void insertClazz(Clazz clazz,Integer userId);
 
     List<SecurityURI> getSecurityURI();
+
+    User getUserByUserId(Integer userId);
 }

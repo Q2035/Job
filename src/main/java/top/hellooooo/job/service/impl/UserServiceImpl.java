@@ -98,4 +98,11 @@ public class UserServiceImpl implements UserService {
         return userMapper.getSecurityURI();
     }
 
+    @Override
+    public User getUserByUserId(Integer userId) {
+        if (userId == null) {
+            throw new RuntimeException("The userId is empty");
+        }
+        return userMapper.getUserByUserId(userId);
+    }
 }

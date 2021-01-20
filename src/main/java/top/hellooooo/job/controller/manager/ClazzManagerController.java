@@ -1,8 +1,6 @@
 package top.hellooooo.job.controller.manager;
 
-import io.lettuce.core.dynamic.annotation.Param;
 import lombok.extern.log4j.Log4j2;
-import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -24,7 +22,10 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * @Author Q
@@ -63,6 +64,13 @@ public class ClazzManagerController extends BaseController {
         return "manager/clazzInfo";
     }
 
+    /**
+     * 为指定班级重命名
+     *
+     * @param clazzId
+     * @param clazzName
+     * @return
+     */
     @ResponseBody
     @PostMapping("/update/name")
     public CommonResult update(Integer clazzId,
@@ -77,6 +85,12 @@ public class ClazzManagerController extends BaseController {
         return CommonResult.ok("Update Class Name Successfully");
     }
 
+    /**
+     * 查看指定班级信息
+     *
+     * @param clazzId
+     * @return
+     */
     @ResponseBody
     @PostMapping("/info")
     public CommonResult<User> info(@RequestParam("clazzId") Integer clazzId) {
@@ -84,11 +98,17 @@ public class ClazzManagerController extends BaseController {
         return CommonResult.ok(users, "Successfully Get");
     }
 
+    /**
+     * 新建班级信息
+     *
+     * @param clazz
+     * @param request
+     * @return
+     */
     @ResponseBody
     @PostMapping("/create")
     public CommonResult create(@RequestBody Clazz clazz,
                                HttpServletRequest request) {
-
         if (clazz == null || StringUtils.isEmpty(clazz.getClazzName())) {
             return CommonResult.fail("Empty clazz name");
         }
@@ -98,13 +118,20 @@ public class ClazzManagerController extends BaseController {
         return CommonResult.ok("Create Clazz Successfully");
     }
 
+    /**
+     * 为指定班级导入学生
+     *
+     * @param multipartFile
+     * @param clazzId
+     * @param request
+     * @return
+     */
     @ResponseBody
     @PostMapping("/import")
     public CommonResult importStudent(
             @RequestParam("file") MultipartFile multipartFile,
             @RequestParam("clazzId") Integer clazzId,
-            HttpServletRequest request
-    ) {
+            HttpServletRequest request) {
         String originalFilename = multipartFile.getOriginalFilename();
         if (!originalFilename.endsWith(fileType)) {
             return CommonResult.fail("Not the support file type: txt");
@@ -117,7 +144,7 @@ public class ClazzManagerController extends BaseController {
             try (
                     InputStream inputStream = multipartFile.getInputStream();
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                    ) {
+            ) {
                 Integer insertUser = insertUser(bufferedReader, clazzId);
                 log.info("Id:{} insert count:{} into class:{}", userId, insertUser, clazzId);
                 UserActionInfo userActionInfo = new UserActionInfo(null, userId, username, null);
@@ -125,7 +152,7 @@ public class ClazzManagerController extends BaseController {
             } catch (IOException e) {
                 return CommonResult.fail("IO Exception");
             }
-        // 较大的文件，需要先进行保存
+            // 较大的文件，需要先进行保存
         } else {
             // 随机生成文件名
             String filename = UUID.randomUUID().toString();
@@ -133,7 +160,7 @@ public class ClazzManagerController extends BaseController {
             try (
                     InputStream inputStream = new FileInputStream(file);
                     BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                    ){
+            ) {
                 multipartFile.transferTo(file);
                 Integer integer = insertUser(bufferedReader, clazzId);
                 log.info("Id:{} insert count:{} into class:{}", userId, integer, clazzId);
@@ -147,8 +174,8 @@ public class ClazzManagerController extends BaseController {
     }
 
     /**
-     *
      * 根据给定的输入流解析后插入数据库
+     *
      * @param bufferedReader
      * @param clazzId
      * @return

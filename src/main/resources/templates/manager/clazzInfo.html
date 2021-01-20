@@ -6,6 +6,16 @@
 </head>
 <body>
 <button id="create">create a clazz</button>
+<p>About Create a Job</p>
+<p style="color: red">1. Input the job name</p>
+<p style="color: red">2. Input the target filename style ($username:180604124 $classname:A18计算机 $realname：方靓仔)</p>
+<p style="color: red">such as:$username $classname $realname</p>
+<p style="color: red">3. Input the deadline(yyyy-MM-dd hh:mm:ss)</p>
+<p style="color: red">4. Input the separator(such as \blank space)</p>
+<p style="color: red">5. Input the clazzid separate by blank space(such as:1 2 3)</p>
+<button id="createJob">create a Job.</button>
+
+<p>Import Students</p>
 <p style="color: red">Attention:</p>
 <p style="color: red">1.The file type must be .txt. eg:"user.txt"</p>
 <p style="color: red">2.The content of text should be "studentId\t(Tab)realname". eg:"180604100 靓仔"</p>
@@ -75,6 +85,37 @@
             ),
             contentType: "application/json;charset=UTF-8",
             url: "/manager/clazz/create",
+            success: (result) => {
+                alert(result.msg);
+                location.reload();
+            },
+            error: (result) => {
+                alert("Error");
+            }
+        })
+    })
+
+    $('#createJob').click(() => {
+        var jobName = prompt("Input the job name");
+        var jobfilename = prompt("Input the target filename style");
+        var deadline = prompt("Input the job's deadline");
+        var separator = prompt("Input the job name separator");
+        var clazzIds = prompt("Input the class ids(such as '1,3,4,4')");
+        var data = JSON.stringify(
+            {
+                "jobName": jobName,
+                "jobfilename": jobfilename,
+                'deadline': deadline,
+                'separator': separator,
+                'clazzIds': clazzIds.split(",")
+            }
+        );
+        console.log(data);
+        $.ajax({
+            type: "post",
+            data: data,
+            contentType: "application/json;charset=UTF-8",
+            url: "/manager/job/create",
             success: (result) => {
                 alert(result.msg);
                 location.reload();

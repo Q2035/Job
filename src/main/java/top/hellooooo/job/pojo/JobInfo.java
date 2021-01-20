@@ -12,6 +12,7 @@ import java.util.List;
  */
 @Data
 public class JobInfo {
+
     private Integer id;
 
     // 作业名称
@@ -25,6 +26,8 @@ public class JobInfo {
 
     // 作业名
     private String jobFilenameInfo;
+
+    private String separators;
 
     // 是否开启邮箱提醒
     private Boolean emailRemind;

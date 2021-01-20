@@ -127,4 +127,7 @@
             where clazz_id = #{clazzId}
         ) limit 500
     </select>
+    <select id="getUserByUserId" resultMap="userMap">
+        select * from j_user where id = #{id} limit 1
+    </select>
 </mapper>
