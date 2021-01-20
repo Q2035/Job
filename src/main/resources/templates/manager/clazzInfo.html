@@ -6,13 +6,29 @@
 </head>
 <body>
 <button id="create">create a clazz</button>
+<p style="color: red">Attention:</p>
+<p style="color: red">1.The file type must be .txt. eg:"user.txt"</p>
+<p style="color: red">2.The content of text should be "studentId\t(Tab)realname". eg:"180604100 靓仔"</p>
+<p style="color: red">3.Click the number to submit the file</p>
 <p>The following is clazz info.</p>
 <p hidden="hidden" th:value="${clazzs.size()}"></p>
 <ul th:each="clazz:${clazzs}">
     <li>
-        <button th:text="${clazz.getClazzName()}"></button>
+        <p>click to update the clazzName</p>
+        <button th:text="${clazz.getClazzName()}" th:value="${clazz.getId()}" onclick="
+            let clazzId = $(this).attr('value');
+            let clazzName = prompt('Input the class name');
+            $.ajax({
+                type: 'post',
+                url: '/manager/clazz/update/name?clazzName=' + clazzName + '&clazzId='+clazzId,
+                contentType: 'application/json;charset=UTF-8',
+                success: (res) => {
+                    alert(res.msg);
+                }
+            });
+        "></button>
         <span th:text="${clazz.getStudentCount()}"></span>
-        <button th:value="${clazz.getId()}" th:id=|Modify"${clazz.getId()}"| onclick="
+        <button th:value="${clazz.getId()}" onclick="
             $.ajax({
                 type: 'post',
                 url: '/manager/clazz/info?clazzId='+ $(this).attr('value'),
@@ -22,15 +38,26 @@
                     console.log(res.data)
                 }
             })
-        ">Modify</button>
+        ">Modify
+        </button>
         <span>Choose the file to upload</span>
-        <form>
-            <input type="file" name="Add Student">
-        </form>
-        <input type="submit" th:id=|submit"${clazz.getId()}"| onclick="
+        <input type="file" name="file" enctype="multipart/form-data" th:id="|file${clazz.getId()}|">
+        <input type="submit" th:value="${clazz.getId()}" onclick="
+            let fileId = '#file' + $(this).attr('value');
+            console.log(fileId);
+            let formdata = new FormData();
+            console.log($(fileId).attr('name'));
+            formdata.append('file',$(fileId)[0].files[0]);
+
             $.ajax({
                 type: 'post',
-
+                url: '/manager/clazz/import?clazzId=' + $(this).attr('value'),
+                processData: false,
+                data: formdata,
+                contentType: false,
+                success: (res) => {
+                    alert(res.msg);
+                }
             })
         ">
     </li>

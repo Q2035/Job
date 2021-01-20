@@ -48,9 +48,9 @@ public class RoleTypeHandler<E extends Role> extends BaseTypeHandler<Role> {
             case 3:
                 return Role.CLAZZ_ADMIN;
             case 2:
+            case 0:
                 return Role.STUDENT;
             case 1:
-            case 0:
                 return Role.ANONYMOUS;
             default:
                 throw new IllegalArgumentException(

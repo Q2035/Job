@@ -1,5 +1,7 @@
 package top.hellooooo.job.controller.manager;
 
+import io.lettuce.core.dynamic.annotation.Param;
+import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,10 +24,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @Author Q
@@ -34,6 +33,7 @@ import java.util.UUID;
  */
 @Controller
 @RequestMapping("/manager/clazz")
+@Log4j2
 public class ClazzManagerController extends BaseController {
 
     @Autowired
@@ -64,6 +64,20 @@ public class ClazzManagerController extends BaseController {
     }
 
     @ResponseBody
+    @PostMapping("/update/name")
+    public CommonResult update(Integer clazzId,
+                               String clazzName) {
+        try {
+            Clazz clazzByClazzId = userService.getClazzByClazzId(clazzId);
+            clazzByClazzId.setClazzName(clazzName);
+            userService.updateClazz(clazzByClazzId);
+        } catch (RuntimeException e) {
+            return CommonResult.fail("Something Error");
+        }
+        return CommonResult.ok("Update Class Name Successfully");
+    }
+
+    @ResponseBody
     @PostMapping("/info")
     public CommonResult<User> info(@RequestParam("clazzId") Integer clazzId) {
         List<User> users = userService.getUsers(clazzId);
@@ -86,9 +100,11 @@ public class ClazzManagerController extends BaseController {
 
     @ResponseBody
     @PostMapping("/import")
-    public CommonResult importStudent(@RequestParam("clazzId") Integer clazzId,
-                                      HttpServletRequest request,
-                                      MultipartFile multipartFile) {
+    public CommonResult importStudent(
+            @RequestParam("file") MultipartFile multipartFile,
+            @RequestParam("clazzId") Integer clazzId,
+            HttpServletRequest request
+    ) {
         String originalFilename = multipartFile.getOriginalFilename();
         if (!originalFilename.endsWith(fileType)) {
             return CommonResult.fail("Not the support file type: txt");
@@ -98,23 +114,31 @@ public class ClazzManagerController extends BaseController {
         Integer userId = Integer.valueOf((String) JwtUtils.getClaim(cookie.getValue(), ConstantString.tokenUserId));
         long size = multipartFile.getSize();
         if (size < _1MB) {
-            try (InputStream inputStream = multipartFile.getInputStream();
-                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));) {
-                insertUser(bufferedReader, clazzId);
+            try (
+                    InputStream inputStream = multipartFile.getInputStream();
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    ) {
+                Integer insertUser = insertUser(bufferedReader, clazzId);
+                log.info("Id:{} insert count:{} into class:{}", userId, insertUser, clazzId);
                 UserActionInfo userActionInfo = new UserActionInfo(null, userId, username, null);
                 logService.importUser(userActionInfo, "Date:{} username:{} import user for class {}", simpleDateFormat.format(new Date()), username, String.valueOf(clazzId));
             } catch (IOException e) {
                 return CommonResult.fail("IO Exception");
             }
-
         // 较大的文件，需要先进行保存
         } else {
             // 随机生成文件名
             String filename = UUID.randomUUID().toString();
             File file = new File(basePath, filename);
-            try {
+            try (
+                    InputStream inputStream = new FileInputStream(file);
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    ){
                 multipartFile.transferTo(file);
-
+                Integer integer = insertUser(bufferedReader, clazzId);
+                log.info("Id:{} insert count:{} into class:{}", userId, integer, clazzId);
+                UserActionInfo userActionInfo = new UserActionInfo(null, userId, username, null);
+                logService.importUser(userActionInfo, "Date:{} username:{} import user for class {}", simpleDateFormat.format(new Date()), username, String.valueOf(clazzId));
             } catch (IOException e) {
                 return CommonResult.fail("Fail to Upload, please retry later.");
             }
@@ -122,23 +146,49 @@ public class ClazzManagerController extends BaseController {
         return CommonResult.ok("Import Successfully");
     }
 
-    private void insertUser(BufferedReader bufferedReader, Integer clazzId) throws IOException {
+    /**
+     *
+     * 根据给定的输入流解析后插入数据库
+     * @param bufferedReader
+     * @param clazzId
+     * @return
+     * @throws IOException
+     */
+    private Integer insertUser(BufferedReader bufferedReader, Integer clazzId) throws IOException {
+        Integer countOfStudent = 0;
         List<User> userList = new ArrayList<>(128);
         String inp = bufferedReader.readLine();
         while (inp != null) {
+            if (StringUtils.isEmpty(inp)) {
+                continue;
+            }
             // 处理输入字符串后构建User对象
             // TODO: 2021-01-19  创建User对象
-            // uesername realname nickname
+            // uesername realname
             User user = new User();
+            String[] split = inp.split("\t");
+            if (split.length != 2) {
+                throw new RuntimeException("Not the support style");
+            }
+            user.setUsername(split[0].trim());
+            user.setPassword(split[0].trim());
+            user.setRealName(split[1].trim());
             userList.add(user);
             if (userList.size() > 100) {
                 userService.batchInsertUserWithClazzId(userList, clazzId);
                 userList.clear();
             }
+            countOfStudent++;
+            inp = bufferedReader.readLine();
         }
         if (!userList.isEmpty()) {
             userService.batchInsertUserWithClazzId(userList, clazzId);
         }
+        // 更新班级人数信息
+        Clazz clazzByClazzId = userService.getClazzByClazzId(clazzId);
+        clazzByClazzId.setStudentCount(clazzByClazzId.getStudentCount() + countOfStudent);
+        userService.updateClazz(clazzByClazzId);
+        return countOfStudent;
     }
 
 }

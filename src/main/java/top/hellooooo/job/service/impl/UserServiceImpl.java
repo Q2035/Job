@@ -74,6 +74,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateClazz(Clazz clazz) {
+        if (clazz == null) {
+            throw new RuntimeException("clazz is null");
+        }
         userMapper.updateClazz(clazz);
     }
 
