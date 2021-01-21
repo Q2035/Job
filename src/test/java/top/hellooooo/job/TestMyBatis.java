@@ -9,6 +9,7 @@ import top.hellooooo.job.mapper.JobMapper;
 import top.hellooooo.job.mapper.UserMapper;
 import top.hellooooo.job.pojo.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,5 +44,18 @@ public class TestMyBatis {
         jobMapper.insertJobClazz(1, 1);
         List<Clazz> clazzWithJobId = jobMapper.getClazzWithJobId(1);
         System.out.println(clazzWithJobId);
+    }
+
+    @Test
+    public void t3(){
+        UserSubmitInfo userSubmitInfo = new UserSubmitInfo();
+        userSubmitInfo.setUserId(1);
+        userSubmitInfo.setJobId(1);
+        userSubmitInfo.setSubmitTime(new Date());
+        // jobMapper.insertSubmitInfo(userSubmitInfo);
+        // jobMapper.updateSubmitInfo(userSubmitInfo);
+        UserSubmitInfo submitInfoByUserIdAndJobId = jobMapper.getSubmitInfoByUserIdAndJobId(1, 1);
+        submitInfoByUserIdAndJobId.setSubmitTime(new Date());
+        jobMapper.updateSubmitInfo(submitInfoByUserIdAndJobId);
     }
 }

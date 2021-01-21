@@ -57,7 +57,6 @@ public class JobController extends BaseController {
 
     /**
      * 创建新的任务
-     *
      * @param request
      * @return
      */

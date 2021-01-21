@@ -59,10 +59,54 @@
     </select>
 
     <select id="getClazzWithJobId" resultType="Clazz">
-        select * from j_clazz where id in (
-            select clazz_id from j_clazz_job where job_id = #{jobId}
-            ) limit 500;
+        select *
+        from j_clazz
+        where id in (
+            select clazz_id
+            from j_clazz_job
+            where job_id = #{jobId}
+        ) limit 500;
     </select>
 
+
+    <select id="getJobsByClazzId" resultMap="jobInfoMap">
+        select *
+        from j_job_info
+        where id in (
+            select job_id
+            from j_clazz_job
+            where clazz_id = #{clazzId}
+        ) limit 500;
+    </select>
+
+    <select id="getSubmitInfoByJobId" resultType="UserSubmitInfo" parameterType="int">
+        select *
+        from j_submit_info
+        where job_id = #{jobId} limit 500;
+    </select>
+
+    <select id="getSubmitInfoByUserId" resultType="UserSubmitInfo" parameterType="int">
+        select *
+        from j_submit_info
+        where user_id = #{userId} limit 500;
+    </select>
+
+    <insert id="insertSubmitInfo" parameterType="UserSubmitInfo">
+        insert into j_submit_info
+        values (default, #{submitTime}, #{userId}, #{jobId})
+    </insert>
+
+    <update id="updateSubmitInfo">
+        update j_submit_info
+        set submit_time = #{submitTime}
+        where id = #{id};
+    </update>
+
+    <select id="getSubmitInfoByUserIdAndJobId" resultType="UserSubmitInfo">
+        select *
+        from j_submit_info
+        where user_id = #{userId}
+          and job_id = #{jobId} limit 500
+    </select>
 
 </mapper>
