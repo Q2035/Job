@@ -18,6 +18,8 @@ public class JobInfo {
     // 作业名称
     private String jobName;
 
+    private String separators;
+
     // 截止时间
     private Date deadline;
 
@@ -27,7 +29,6 @@ public class JobInfo {
     // 作业名
     private String jobFilenameInfo;
 
-    private String separators;
 
     // 是否开启邮箱提醒
     private Boolean emailRemind;

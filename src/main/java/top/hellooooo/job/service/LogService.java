@@ -18,5 +18,7 @@ public interface LogService {
 
     void importUser(UserActionInfo userActionInfo, String msg, String... args);
 
+    void createJob(UserActionInfo userActionInfo, String msg, String... args);
+
     void logout(UserActionInfo userActionInfo, String msg, String... args);
 }

@@ -114,3 +114,10 @@ CREATE TABLE `j_file`  (
      `file_key` varchar(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL COMMENT '文件标识',
      PRIMARY KEY (`id`) USING BTREE
 );
+
+# 班级和作业关联信息
+create table `j_clazz_job` (
+    id int auto_increment primary key ,
+    clazz_id int,
+    job_id int
+);

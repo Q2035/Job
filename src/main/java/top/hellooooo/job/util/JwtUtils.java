@@ -35,7 +35,7 @@ public class JwtUtils {
                 .setClaims(claimsMap)
                 .setIssuedAt(new Date())
                 // 如果在setClaims之前无效
-                .setExpiration(new Date(new Date().getTime() + EXPIRE_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_TIME))
                 .setSubject("auth")
                 .signWith(secretKey)
                 .compact();
@@ -72,7 +72,7 @@ public class JwtUtils {
             Date expiration = claimsJws.getBody()
                     .getExpiration();
             // 已过期
-            if (expiration.getTime() < new Date().getTime()) {
+            if (expiration.getTime() < System.currentTimeMillis()) {
                 return false;
             }
             //OK, we can trust this JWT

@@ -1,0 +1,68 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.hellooooo.job.mapper.JobMapper">
+
+    <insert id="createJob" parameterType="JobInfo">
+        insert into j_job_info
+        values (default,
+                #{jobName},
+                #{separators},
+                #{deadline},
+                #{createTime},
+                #{jobFilenameInfo},
+                #{creator.id});
+    </insert>
+
+    <insert id="insertJobClazz">
+        insert into j_clazz_job
+        values (default, #{clazzId}, #{jobId})
+    </insert>
+
+    <update id="updateJob" parameterType="JobInfo">
+        update j_job_info
+        set job_name          = #{jobName},
+            separators        = #{separators},
+            deadline          = #{deadline},
+            job_filename_info = #{jobFilenameInfo} user_id = #{creator.id}
+        where id = #{id}
+    </update>
+
+    <resultMap id="userMap" type="User">
+        <result property="accountStatus" column="account_status"
+                typeHandler="top.hellooooo.job.handler.AccountStatusTypeHandler"/>
+        <result property="role" column="roles" typeHandler="top.hellooooo.job.handler.RoleTypeHandler"/>
+        <!--        <association property="clazz" column="clazz_id" select="getClazzByClazzId"/>-->
+    </resultMap>
+
+    <select id="getUserByUserId" resultMap="userMap">
+        select *
+        from j_user
+        where id = #{id} limit 1
+    </select>
+
+    <resultMap id="jobInfoMap" type="JobInfo">
+        <association property="creator" column="user_id" select="getUserByUserId"/>
+    </resultMap>
+
+
+    <select id="getJobById" resultType="JobInfo" parameterType="int">
+        select *
+        from j_job_info
+        where id = #{id} limit 1;
+    </select>
+
+    <select id="getJobsByCreatorId" resultMap="jobInfoMap">
+        select *
+        from j_job_info
+        where user_id = #{userId} limit 500
+    </select>
+
+    <select id="getClazzWithJobId" resultType="Clazz">
+        select * from j_clazz where id in (
+            select clazz_id from j_clazz_job where job_id = #{jobId}
+            ) limit 500;
+    </select>
+
+
+</mapper>

@@ -57,7 +57,7 @@
     </insert>
 
 
-<!--    自动在插入数据库后将生成的逐渐设回参数-->
+    <!--    自动在插入数据库后将生成的逐渐设回参数-->
     <insert id="batchInsertUser" parameterType="list" useGeneratedKeys="true" keyProperty="list.id">
         insert into j_user values
         <foreach collection="list" item="user" separator=",">
@@ -127,7 +127,10 @@
             where clazz_id = #{clazzId}
         ) limit 500
     </select>
+
     <select id="getUserByUserId" resultMap="userMap">
-        select * from j_user where id = #{id} limit 1
+        select *
+        from j_user
+        where id = #{id} limit 1
     </select>
 </mapper>

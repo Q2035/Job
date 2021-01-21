@@ -12,6 +12,7 @@ import top.hellooooo.job.pojo.AccountStatus;
 import top.hellooooo.job.pojo.Role;
 import top.hellooooo.job.pojo.User;
 import top.hellooooo.job.pojo.UserActionInfo;
+import top.hellooooo.job.service.JobService;
 import top.hellooooo.job.service.LogService;
 import top.hellooooo.job.service.UserService;
 import top.hellooooo.job.util.ConstantString;
@@ -43,16 +44,14 @@ public class UserController extends BaseController{
     private SimpleDateFormat simpleDateFormat;
 
     @Autowired
+    private JobService jobService;
+
+    @Autowired
     private LogService logService;
 
     @Value("${url.token}")
     private String urlToken;
 
-    @ResponseBody
-    @GetMapping("hello")
-    public String hello() {
-        return "hello";
-    }
 
     /**
      * 登录页面跳转
@@ -67,7 +66,8 @@ public class UserController extends BaseController{
             // 登录成功，根据角色信息进行跳转
             String JWTRole = (String) JwtUtils.getClaim(cookie.getValue(), ConstantString.tokenRole);
             if (!StringUtils.isEmpty(JWTRole)) {
-                return getUserIndexURI(Role.fromRoleName(Integer.valueOf(JWTRole)));
+                Integer userId = Integer.valueOf((String)JwtUtils.getClaim(cookie.getValue(), ConstantString.tokenUserId));
+                return getUserIndexURI(Role.fromRoleName(Integer.valueOf(JWTRole)), model, userId);
             }
         }
         String msg = request.getParameter(ConstantString.resultMsg);
@@ -99,7 +99,8 @@ public class UserController extends BaseController{
      * @return
      */
     @PostMapping("/authenticate")
-    public String authentication(@RequestParam("username") String username,
+    public String authentication(Model model,
+                                 @RequestParam("username") String username,
                                  @RequestParam("password") String password,
                                  HttpServletResponse response,
                                  HttpServletRequest request) {
@@ -129,13 +130,15 @@ public class UserController extends BaseController{
             logService.login(userActionInfo, loginState, simpleDateFormat.format(now), String.valueOf(user.getId()), user.getRealName(), request.getRemoteAddr(), device);
             response.addCookie(cookie);
             // 根据用户角色信息返回相应的页面
-            return getUserIndexURI(role);
+            return getUserIndexURI(role, model, user.getId());
         } else {
             return "redirect:/user/index?msg=Wrong Password";
         }
     }
 
-    private String getUserIndexURI(Role role) {
+    private String getUserIndexURI(Role role,
+                                   Model model,
+                                   Integer userId) {
         if (role == null) {
             return "/login";
         }
@@ -143,8 +146,10 @@ public class UserController extends BaseController{
             case ADMIN:
                 return "/admin/main";
             case STUDENT:
+                // TODO: 2021-01-21 需要增加未提交的作业和已提交的作业
                 return "/user/main";
             case CLAZZ_ADMIN:
+                model.addAttribute("jobs", jobService.getJobsByCreatorId(userId));
                 return "/manager/main";
             default:
                 return "/login";

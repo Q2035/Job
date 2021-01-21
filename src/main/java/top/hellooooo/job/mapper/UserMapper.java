@@ -1,10 +1,7 @@
 package top.hellooooo.job.mapper;
 
 import io.lettuce.core.dynamic.annotation.Param;
-import top.hellooooo.job.pojo.Clazz;
-import top.hellooooo.job.pojo.Role;
-import top.hellooooo.job.pojo.SecurityURI;
-import top.hellooooo.job.pojo.User;
+import top.hellooooo.job.pojo.*;
 
 import java.util.List;
 
@@ -46,4 +43,5 @@ public interface UserMapper {
     Integer insertClazz(Clazz clazz);
 
     List<SecurityURI> getSecurityURI();
+
 }

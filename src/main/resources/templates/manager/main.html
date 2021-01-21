@@ -10,9 +10,8 @@
 <a th:href="@{/manager/clazz}">Clazz Info</a>
 <a th:href="@{/user/logout}">logout</a>
 <p>The following is a valid job.</p>
-<ul>
-    <li>Hello</li>
-    <li>hi</li>
+<ul th:each="job:${jobs}">
+    <li><span th:text="${job.getJobName()}"></span></li>
 </ul>
 <p>The following is a invalid job.</p>
 <ul>
